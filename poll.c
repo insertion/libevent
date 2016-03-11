@@ -84,6 +84,7 @@ static void do_poll(int listenfd)
     for ( ; ; )
     {
         //获取可用描述符的个数
+        //第二个参数是fd的个数
         nready = poll(clientfds,maxi+1,INFTIM);
         if (nready == -1)
         {
@@ -109,10 +110,10 @@ static void do_poll(int listenfd)
             //将新的连接描述符添加到数组中
             for (i = 1;i < OPEN_MAX;i++)
             {
-                if (clientfds[i].fd < 0)
+                if (clientfds[i].fd < 0)//从0开始找到一个空的client
                 {
                     clientfds[i].fd = connfd;
-                    break;
+                    break;//完成操作跳出循环
                 }
             }
             if (i == OPEN_MAX)
@@ -120,7 +121,7 @@ static void do_poll(int listenfd)
                 fprintf(stderr,"too many clients.\n");
                 exit(1);
             }
-            //将新的描述符添加到读描述符集合中
+            //将事件绑定到新的描述符上
             clientfds[i].events = POLLIN;
             //记录客户连接套接字的个数
             maxi = (i > maxi ? i : maxi);
